@@ -8,7 +8,8 @@ nixPkgs = [
   "php83Extensions.tokenizer",
   "php83Extensions.xml",
   "php83Extensions.ctype",
-  "php83Extensions.curl"
+  "php83Extensions.curl",
+  "nodejs_20"
 ]
 
 [phases.build]
