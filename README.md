@@ -8,7 +8,7 @@ A simple Task Management application built with **Laravel (PHP)** and **MySQL**.
 - View and filter tasks
 - Update task status with strict progression rules
 - Delete completed tasks
-- Generate a daily report of tasks (bonus feature)
+- Generate a daily report of tasks
 
 A simple web interface is included using **Blade, vanilla JavaScript, and custom CSS**.
 
