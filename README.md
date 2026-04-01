@@ -285,7 +285,14 @@ Visit your Railway URL to confirm the app is running. ✅
 
 ## Testing the API on Railway (cURL)
 
-<https://task-management-api-production-989c.up.railway.app/>
+<https://task-management-api-production-989c.up.railway.app/> 
+
+Paste and run it on the browser. A simple UI with mock up data (TaskSeed) has been provided to 
+* Create tasks
+* Filter tasks
+* Change the status of tasks in the following order from pending -> in_progress -> done
+* Delete done tasks
+* Generate a report based on the day
 
 ---
 
@@ -395,8 +402,8 @@ curl -X GET "https://task-management-api-production-989c.up.railway.app/api/task
 
 ```json
 {
-    "message": "No tasks found.",
-    "tasks": []
+  "message": "No tasks found.",
+  "tasks": []
 }
 ```
 
@@ -417,10 +424,7 @@ curl -X GET "https://task-management-api-production-989c.up.railway.app/api/task
 
 ```json
 {
-    "message": "The title has already been taken for this due date.",
-    "errors": {
-        "title": ["The title has already been taken for this due date."]
-    }
+    "message":"A task with the same title and due date"
 }
 ```
 
@@ -428,19 +432,20 @@ curl -X GET "https://task-management-api-production-989c.up.railway.app/api/task
 
 ```json
 {
-    "message": "Invalid status transition. Tasks must follow: pending → in_progress → done"
+    "message":"Invalid status transition. Status can only move forward one step."
 }
+
 ```
 
 ### Delete non-done task (`403 Forbidden`)
 
 ```json
 {
-    "message": "Only tasks with status 'done' can be deleted."
+    message":"only completed tasks can be deleted."
 }
 ```
 
-### Task not found (`404 Not Found`)
+### when trying to delete or updating the status of a non existing task(`404 Not Found`)
 
 ```json
 {
@@ -449,7 +454,3 @@ curl -X GET "https://task-management-api-production-989c.up.railway.app/api/task
 ```
 
 ---
-
-| `DB_USERNAME` | Set to `root` on Railway |
-| `DB_PASSWORD` | Copy from MySQL service variables on Railway |
-| `NIXPACKS_PHP_VERSION` | Set to `8.3` to force correct PHP version |
