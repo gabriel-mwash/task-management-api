@@ -27,7 +27,19 @@ A simple web interface is included using **Blade, vanilla JavaScript, and custom
 ## Database
 
 - **Database used:** MySQL
-- SQL dump included: `task_manager.sql`
+- Migrations included in `database/migrations/`
+
+### Tasks Table
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | integer | Primary Key |
+| title | string | Task title |
+| due_date | date | Deadline |
+| priority | enum | `low`, `medium`, `high` |
+| status | enum | `pending`, `in_progress`, `done` |
+| created_at | timestamp | Laravel default |
+| updated_at | timestamp | Laravel default |
 
 ---
 
@@ -86,9 +98,103 @@ Visit `http://localhost:8000` in your browser.
 
 ---
 
+## Testing the API Locally (cURL)
+
+Make sure your local server is running (`php artisan serve`) before testing.
+
+**Base URL:** `http://localhost:8000`
+
+---
+
+### 1. Create a task
+
+```bash
+curl -X POST http://localhost:8000/api/tasks \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Fix login bug",
+    "due_date": "2026-04-10",
+    "priority": "high"
+  }'
+```
+
+> **Rules:**
+> - `title` cannot duplicate a task with the same `due_date`
+> - `priority` must be `low`, `medium`, or `high`
+> - `due_date` must be today or a future date
+
+---
+
+### 2. List all tasks
+
+```bash
+curl -X GET http://localhost:8000/api/tasks \
+  -H "Accept: application/json"
+```
+
+Filter by status:
+
+```bash
+curl -X GET "http://localhost:8000/api/tasks?status=pending" \
+  -H "Accept: application/json"
+```
+
+> Tasks are sorted by priority (`high → low`) then by `due_date` ascending.
+
+---
+
+### 3. Update task status
+
+```bash
+curl -X PATCH http://localhost:8000/api/tasks/1/status \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "in_progress"
+  }'
+```
+
+> **Status progression:** `pending → in_progress → done`
+> Cannot skip or revert status.
+
+---
+
+### 4. Delete a task
+
+```bash
+curl -X DELETE http://localhost:8000/api/tasks/1 \
+  -H "Accept: application/json"
+```
+
+> Only tasks with status `done` can be deleted. Otherwise returns `403 Forbidden`.
+
+---
+
+### 5. Daily report (bonus)
+
+```bash
+curl -X GET "http://localhost:8000/api/tasks/report?date=2026-04-01" \
+  -H "Accept: application/json"
+```
+
+---
+
+## Task Status Progression
+
+Tasks follow a strict status flow:
+
+```
+pending → in_progress → done
+```
+
+> Skipping or reverting a status is not allowed and will return a validation error.
+
+---
+
 ## Deploying to Railway
 
-[Railway](https://railway.com) is a cloud platform that makes it easy to deploy Laravel apps with a MySQL database.
+[Railway](https://railway.com) is a cloud platform that makes it easy to deploy Laravel apps with a managed MySQL database. It detects your project automatically from GitHub and handles building and running the app.
 
 ### Prerequisites
 - A [Railway](https://railway.com) account connected to GitHub
@@ -100,7 +206,9 @@ Visit `http://localhost:8000` in your browser.
 
 1. Go to [railway.com](https://railway.com) → **New Project**
 2. Select **"Deploy from GitHub repo"**
-3. Select your repository → click **"Deploy Now"**
+3. Find and select your repository → click **"Deploy Now"**
+
+> The first deploy may fail — that is expected since environment variables haven't been set yet.
 
 ---
 
@@ -108,9 +216,9 @@ Visit `http://localhost:8000` in your browser.
 
 1. Inside your project dashboard click **"New"**
 2. Select **"Database"** → **"Add MySQL"**
-3. Railway will automatically provision a MySQL instance
+3. Wait ~30 seconds for Railway to provision it
 
-You should now see two services:
+You should now see two services in your project:
 ```
 📦 Laravel App
 🗄️  MySQL
@@ -124,9 +232,7 @@ You should now see two services:
 2. Under the **Build** section set the builder to **Nixpacks**
 
 > **What is `nixpacks.toml`?**
-> It's a configuration file placed in the project root that tells Railway exactly how to build and start your app — which PHP version to use, which extensions to install, how to run composer, and how to start the server. Without it, Railway guesses and often gets it wrong.
-
-The project includes a `nixpacks.toml` that handles all of this automatically.
+> It is a configuration file in the project root that tells Railway exactly how to build and run your app — which PHP version and extensions to install, how to run Composer, and how to start the server. The project includes this file so Railway builds correctly without any manual configuration.
 
 ---
 
@@ -135,7 +241,7 @@ The project includes a `nixpacks.toml` that handles all of this automatically.
 1. Click your **Laravel App service** → **Settings**
 2. Scroll to **Networking** → click **"Generate Domain"**
 
-Copy the generated URL (e.g. `https://your-app.up.railway.app`).
+Copy the generated URL — you will need it for `APP_URL`.
 
 ---
 
@@ -164,77 +270,205 @@ NIXPACKS_PHP_VERSION=8.3
 
 **Getting the values:**
 
-- `APP_KEY` — run locally: `php artisan key:generate --show`
-- `APP_URL` — your Railway domain from Step 4
-- `DB_PASSWORD` — copy `MYSQLPASSWORD` from your MySQL service → Variables tab
+- `APP_KEY` — run this locally and copy the output:
+```bash
+php artisan key:generate --show
+```
+- `APP_URL` — paste your Railway domain from Step 4
+- `DB_PASSWORD` — go to your **MySQL service → Variables tab** and copy the `MYSQLPASSWORD` value
 
 Click **Save** — Railway will redeploy automatically.
 
 ---
 
-### Step 6 — Verify
+### Step 6 — Verify Deployment
 
-Go to **Deployments** → click the latest → **View Logs**. Look for:
+Go to **Deployments** → click the latest deployment → **View Logs**.
 
+Look for these success indicators:
 ```
 Running migrations...
 Seeding TaskSeeder...
 Server started on 0.0.0.0:PORT
 ```
 
-Visit your Railway URL to confirm everything is working. ✅
+Visit your Railway URL to confirm the app is running. ✅
 
 ---
 
-## Example API Requests
+## Testing the API on Railway (cURL)
 
-Base URL: `https://your-app.up.railway.app`
+Replace `https://your-app.up.railway.app` with your actual Railway URL.
 
-### Get all tasks
-```http
-GET /api/tasks
-```
+---
 
-### Create a task
-```http
-POST /api/tasks
-Content-Type: application/json
+### 1. Create a task
 
-{
+```bash
+curl -X POST https://your-app.up.railway.app/api/tasks \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
     "title": "Fix login bug",
-    "description": "Users can't log in on mobile",
-    "status": "pending"
-}
-```
-
-### Get a single task
-```http
-GET /api/tasks/{id}
-```
-
-### Update a task
-```http
-PUT /api/tasks/{id}
-Content-Type: application/json
-
-{
-    "status": "in_progress"
-}
-```
-
-### Delete a task
-```http
-DELETE /api/tasks/{id}
+    "due_date": "2026-04-10",
+    "priority": "high"
+  }'
 ```
 
 ---
 
-## Task Status Progression
+### 2. List all tasks
 
-Tasks follow a strict status flow:
-
+```bash
+curl -X GET https://your-app.up.railway.app/api/tasks \
+  -H "Accept: application/json"
 ```
-pending → in_progress → completed
+
+Filter by status:
+
+```bash
+curl -X GET "https://your-app.up.railway.app/api/tasks?status=pending" \
+  -H "Accept: application/json"
 ```
 
-Only completed tasks can be deleted.
+---
+
+### 3. Update task status
+
+```bash
+curl -X PATCH https://your-app.up.railway.app/api/tasks/1/status \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "in_progress"
+  }'
+```
+
+---
+
+### 4. Delete a task
+
+```bash
+curl -X DELETE https://your-app.up.railway.app/api/tasks/1 \
+  -H "Accept: application/json"
+```
+
+---
+
+### 5. Daily report (bonus)
+
+```bash
+curl -X GET "https://your-app.up.railway.app/api/tasks/report?date=2026-04-01" \
+  -H "Accept: application/json"
+```
+
+---
+
+## API Response Examples
+
+### Successful task creation (`201 Created`)
+
+```json
+{
+    "id": 1,
+    "title": "Fix login bug",
+    "due_date": "2026-04-10",
+    "priority": "high",
+    "status": "pending",
+    "created_at": "2026-04-01T10:00:00.000000Z",
+    "updated_at": "2026-04-01T10:00:00.000000Z"
+}
+```
+
+### List tasks response (`200 OK`)
+
+```json
+[
+    {
+        "id": 1,
+        "title": "Fix login bug",
+        "due_date": "2026-04-10",
+        "priority": "high",
+        "status": "pending",
+        "created_at": "2026-04-01T10:00:00.000000Z",
+        "updated_at": "2026-04-01T10:00:00.000000Z"
+    }
+]
+```
+
+### No tasks found (`200 OK`)
+
+```json
+{
+    "message": "No tasks found.",
+    "data": []
+}
+```
+
+### Daily report response (`200 OK`)
+
+```json
+{
+    "date": "2026-04-01",
+    "summary": {
+        "high": {"pending": 2, "in_progress": 1, "done": 0},
+        "medium": {"pending": 1, "in_progress": 0, "done": 3},
+        "low": {"pending": 0, "in_progress": 0, "done": 1}
+    }
+}
+```
+
+### Validation error (`422 Unprocessable Entity`)
+
+```json
+{
+    "message": "The title has already been taken for this due date.",
+    "errors": {
+        "title": ["The title has already been taken for this due date."]
+    }
+}
+```
+
+### Invalid status transition (`422 Unprocessable Entity`)
+
+```json
+{
+    "message": "Invalid status transition. Tasks must follow: pending → in_progress → done"
+}
+```
+
+### Delete non-done task (`403 Forbidden`)
+
+```json
+{
+    "message": "Only tasks with status 'done' can be deleted."
+}
+```
+
+### Task not found (`404 Not Found`)
+
+```json
+{
+    "message": "Task not found."
+}
+```
+
+---
+
+## Environment Variables Reference
+
+| Variable | Description |
+|----------|-------------|
+| `APP_NAME` | Application name |
+| `APP_ENV` | Set to `production` on Railway |
+| `APP_KEY` | Laravel encryption key — generate with `php artisan key:generate --show` |
+| `APP_DEBUG` | Set to `false` in production |
+| `APP_URL` | Your Railway public URL |
+| `LOG_CHANNEL` | Set to `stderr` so logs appear in Railway console |
+| `DB_CONNECTION` | Set to `mysql` |
+| `DB_HOST` | Set to `mysql.railway.internal` on Railway |
+| `DB_PORT` | Set to `3306` |
+| `DB_DATABASE` | Set to `railway` on Railway |
+| `DB_USERNAME` | Set to `root` on Railway |
+| `DB_PASSWORD` | Copy from MySQL service variables on Railway |
+| `NIXPACKS_PHP_VERSION` | Set to `8.3` to force correct PHP version |
