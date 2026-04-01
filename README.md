@@ -286,14 +286,14 @@ Visit your Railway URL to confirm the app is running. ✅
 
 ## Testing the API on Railway (cURL)
 
-Replace `https://your-app.up.railway.app` with your actual Railway URL.
+<https://task-management-api-production-989c.up.railway.app/>
 
 ---
 
 ### 1. Create a task
 
 ```bash
-curl -X POST https://your-app.up.railway.app/api/tasks \
+curl -X POST https://task-management-api-production-989c.up.railway.app/api/tasks \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -d '{
@@ -308,14 +308,14 @@ curl -X POST https://your-app.up.railway.app/api/tasks \
 ### 2. List all tasks
 
 ```bash
-curl -X GET https://your-app.up.railway.app/api/tasks \
+curl -X GET https://task-management-api-production-989c.up.railway.app/api/tasks \
   -H "Accept: application/json"
 ```
 
 Filter by status:
 
 ```bash
-curl -X GET "https://your-app.up.railway.app/api/tasks?status=pending" \
+curl -X GET "https://task-management-api-production-989c.up.railway.app/api/tasks?status=pending" \
   -H "Accept: application/json"
 ```
 
@@ -324,7 +324,7 @@ curl -X GET "https://your-app.up.railway.app/api/tasks?status=pending" \
 ### 3. Update task status
 
 ```bash
-curl -X PATCH https://your-app.up.railway.app/api/tasks/1/status \
+curl -X PATCH https://task-management-api-production-989c.up.railway.app/api/tasks/1/status \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -d '{
@@ -337,16 +337,16 @@ curl -X PATCH https://your-app.up.railway.app/api/tasks/1/status \
 ### 4. Delete a task
 
 ```bash
-curl -X DELETE https://your-app.up.railway.app/api/tasks/1 \
+curl -X DELETE https://task-management-api-production-989c.up.railway.app/api/tasks/1 \
   -H "Accept: application/json"
 ```
 
 ---
 
-### 5. Daily report (bonus)
+### 5. Daily report
 
 ```bash
-curl -X GET "https://your-app.up.railway.app/api/tasks/report?date=2026-04-01" \
+curl -X GET "https://task-management-api-production-989c.up.railway.app/api/tasks/report?date=2026-04-01" \
   -H "Accept: application/json"
 ```
 
