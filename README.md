@@ -28,19 +28,7 @@ A simple web interface is included using **Blade, vanilla JavaScript, and custom
 
 - **Database used:** MySQL
 - Migrations included in `database/migrations/`
-
-### Tasks Table
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | integer | Primary Key |
-| title | string | Task title |
-| due_date | date | Deadline |
-| priority | enum | `low`, `medium`, `high` |
-| status | enum | `pending`, `in_progress`, `done` |
-| created_at | timestamp | Laravel default |
-| updated_at | timestamp | Laravel default |
-
+- included also mysql dump file `task_manager.sql`
 ---
 
 ## Running Locally
@@ -48,7 +36,7 @@ A simple web interface is included using **Blade, vanilla JavaScript, and custom
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
+git clone git@github.com:gabriel-mwash/task-management-api.git
 cd task-management-api
 ```
 
