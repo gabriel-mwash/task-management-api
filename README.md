@@ -196,7 +196,6 @@ pending → in_progress → done
 2. Select **"Deploy from GitHub repo"**
 3. Find and select your repository → click **"Deploy Now"**
 
-> The first deploy may fail — that is expected since environment variables haven't been set yet.
 
 ---
 
@@ -354,34 +353,42 @@ curl -X GET "https://task-management-api-production-989c.up.railway.app/api/task
 
 ## API Response Examples
 
-### Successful task creation (`201 Created`)
+### Successful task creation (`201`)
 
 ```json
 {
-    "id": 1,
-    "title": "Fix login bug",
-    "due_date": "2026-04-10",
-    "priority": "high",
-    "status": "pending",
-    "created_at": "2026-04-01T10:00:00.000000Z",
-    "updated_at": "2026-04-01T10:00:00.000000Z"
+    "message":"Tasks retrieved successfully",
+    "tasks":[
+        {
+            "id": 1,
+            "title": "Fix login bug",
+            "due_date": "2026-04-10",
+            "priority": "high",
+            "status": "pending",
+            "created_at": "2026-04-01T10:00:00.000000Z",
+            "updated_at": "2026-04-01T10:00:00.000000Z"
+        }
+     ]
 }
 ```
 
 ### List tasks response (`200 OK`)
 
 ```json
-[
-    {
-        "id": 1,
-        "title": "Fix login bug",
-        "due_date": "2026-04-10",
-        "priority": "high",
-        "status": "pending",
-        "created_at": "2026-04-01T10:00:00.000000Z",
-        "updated_at": "2026-04-01T10:00:00.000000Z"
-    }
-]
+{
+    "message":"Tasks retrieved successfully",
+    "tasks":[
+        {
+            "id": 1,
+            "title": "Fix login bug",
+            "due_date": "2026-04-10",
+            "priority": "high",
+            "status": "pending",
+            "created_at": "2026-04-01T10:00:00.000000Z",
+            "updated_at": "2026-04-01T10:00:00.000000Z"
+        }
+     ]
+}
 ```
 
 ### No tasks found (`200 OK`)
@@ -389,7 +396,7 @@ curl -X GET "https://task-management-api-production-989c.up.railway.app/api/task
 ```json
 {
     "message": "No tasks found.",
-    "data": []
+    "tasks": []
 }
 ```
 
@@ -443,20 +450,6 @@ curl -X GET "https://task-management-api-production-989c.up.railway.app/api/task
 
 ---
 
-## Environment Variables Reference
-
-| Variable | Description |
-|----------|-------------|
-| `APP_NAME` | Application name |
-| `APP_ENV` | Set to `production` on Railway |
-| `APP_KEY` | Laravel encryption key — generate with `php artisan key:generate --show` |
-| `APP_DEBUG` | Set to `false` in production |
-| `APP_URL` | Your Railway public URL |
-| `LOG_CHANNEL` | Set to `stderr` so logs appear in Railway console |
-| `DB_CONNECTION` | Set to `mysql` |
-| `DB_HOST` | Set to `mysql.railway.internal` on Railway |
-| `DB_PORT` | Set to `3306` |
-| `DB_DATABASE` | Set to `railway` on Railway |
 | `DB_USERNAME` | Set to `root` on Railway |
 | `DB_PASSWORD` | Copy from MySQL service variables on Railway |
 | `NIXPACKS_PHP_VERSION` | Set to `8.3` to force correct PHP version |
